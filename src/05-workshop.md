@@ -4,12 +4,10 @@ YH
 2024-02-13
 
 - [Baseball statistics](#baseball-statistics)
-- [Global fishing watch from
-  BigQuery](#global-fishing-watch-from-bigquery)
 
 ## Baseball statistics
 
-In the first workshop, we continue working on the `Lahman` data sets on
+In this workshop, we continue working on the `Lahman` data sets on
 baseball players. Here’s the database schema, retrieved from the [Sean
 Lahman’s Baseball
 Database](https://github.com/cdalzell/Lahman?tab=readme-ov-file).
@@ -26,6 +24,9 @@ pacman::p_load(tidyverse, # tidyverse packages
                RSQLite,   # SQLite package for R
                bigrquery, # Google BigQuery
                Lahman)    # toy data
+```
+
+``` r
 # Create and connect to an SQLite database
 lite_con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 ```
@@ -238,8 +239,3 @@ WHERE schoolID = "rice"
 ``` r
 DBI::dbDisconnect(lite_con)
 ```
-
-## Global fishing watch from BigQuery
-
-In the second workshop, we will work on data from the Global Fishing
-Watch (GFW) project.

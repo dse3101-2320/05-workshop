@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ## Baseball statistics
-In the first workshop, we continue working on the `Lahman` data sets on baseball players. Here's the database schema, retrieved from the [Sean Lahman's Baseball Database](https://github.com/cdalzell/Lahman?tab=readme-ov-file).
+In this workshop, we continue working on the `Lahman` data sets on baseball players. Here's the database schema, retrieved from the [Sean Lahman's Baseball Database](https://github.com/cdalzell/Lahman?tab=readme-ov-file).
 
 ```{r echo = FALSE, out.width = "100%"}
 knitr::include_graphics("../figures/Lahnan-db-diagram.jpg")
@@ -32,6 +32,9 @@ pacman::p_load(tidyverse, # tidyverse packages
                RSQLite,   # SQLite package for R
                bigrquery, # Google BigQuery
                Lahman)    # toy data
+```
+
+```{r}
 # Create and connect to an SQLite database
 lite_con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 ```
@@ -69,7 +72,7 @@ copy_to(
 schools_db <- tbl(lite_con, "schools")
 ```
 
-```{r mysize = TRUE, size = '\\scriptsize'}
+```{r}
 # Show available tables
 dbListTables(lite_con)
 ```
@@ -136,55 +139,6 @@ WHERE schoolID = "rice"
 ```
 + Once we are done using a database, make sure to **disconnect** from the connection.
 
-```{r mysize = TRUE, size = '\\scriptsize'}
+```{r}
 DBI::dbDisconnect(lite_con)
 ```
-
-## Global fishing watch from BigQuery
-In the second workshop, we will work on data from the [Global Fishing Watch (GFW) project](https://globalfishingwatch.org/).
-
-+ Follow the instructions in the lecture notes and obtain your **project number** from Google Cloud.
-
-+ Store it as an **environment variable**, like with your API keys.
-
-```{r}
-# Create connection
-gfw_con = dbConnect(
-  bigrquery::bigquery(),
-  project = "global-fishing-watch",
-  dataset = "global_footprint_of_fisheries",
-  billing = Sys.getenv("PROJECT_ID")
-)
-# List tables in database
-dbListTables(gfw_con)
-
-# Connect to a data set
-fishing_effort <- tbl(gfw_con, "fishing_effort")
-```
-
-### Which countries (identified by `flag`) has the longest fishing hours?
-
-```{sql, connection = gfw_con}
-SELECT flag, SUM(fishing_hours) AS total_fishing_hours
-FROM fishing_effort
-GROUP BY flag
-ORDER BY total_fishing_hours DESC
-```
-
-+ After you finish, remember to disconnect from the database.
-
-```{r mysize = TRUE, size = '\\scriptsize'}
-dbDisconnect(gfw_con)
-```
-
-
-
-
-
-
-
-
-
-
-
-

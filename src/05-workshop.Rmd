@@ -1,0 +1,137 @@
+---
+title: "Workshop 5"
+author: "YH"
+date: "`r Sys.Date()`"
+output: 
+  github_document:
+    toc: true
+    toc_depth: 2
+    fig_width: 10
+    fig_height: 4
+    df_print: kable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Baseball statistics
+In the first workshop, we continue working on the `Lahman` data sets on baseball players. Here's the database schema, retrieved from the [Sean Lahman's Baseball Database](https://github.com/cdalzell/Lahman?tab=readme-ov-file).
+
+```{r echo = FALSE, out.width = "100%"}
+knitr::include_graphics("../figures/Lahnan-db-diagram.jpg")
+```
+
++ Let's load the necessary packages first.
+
+```{r}
+# install.packages("pacman")
+pacman::p_load(tidyverse, # tidyverse packages
+               dbplyr,    # database with dplyr
+               DBI,       # Database interface
+               RSQLite,   # SQLite package for R
+               bigrquery, # Google BigQuery
+               Lahman)    # toy data
+# Create and connect to an SQLite database
+lite_con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+```
+
+
++ We will be using the following tables: `people`, `collegePlaying`, and `schools`.
+
+```{r}
+# Copy local data frames to remote database
+copy_to(
+  dest = lite_con, 
+  df = Lahman::People, 
+  name = "people",
+  temporary = FALSE, 
+  indexes = list("playerID")
+)
+people_db <- tbl(lite_con, "people")
+
+copy_to(
+  dest = lite_con, 
+  df = Lahman::CollegePlaying, 
+  name = "collegeplaying",
+  temporary = FALSE, 
+  indexes = list("playerID")
+)
+collegeplaying_db <- tbl(lite_con, "collegeplaying")
+
+copy_to(
+  dest = lite_con, 
+  df = Lahman::Schools, 
+  name = "schools",
+  temporary = FALSE, 
+  indexes = list("schoolID")
+)
+schools_db <- tbl(lite_con, "schools")
+```
+
+```{r mysize = TRUE, size = '\\scriptsize'}
+# Show available tables
+dbListTables(lite_con)
+```
+
+### 1. Find all players with first name as "Ken" or "Matty".
+
+```{sql, connection = lite_con}
+/* 1. Find all players with first name as "Ken" or "Matty" */
+SELECT playerID, nameFirst, nameLast, birthYear
+FROM people
+WHERE namefirst IN ("Ken", "Matty")
+```
+
+### 2. Find all players whose first name contains "mat". Then show the unique first names that contain "mat".
+
+```{sql, connection = lite_con}
+/* 2.1 Show unique first names that contain "mat" */
+SELECT playerID, nameFirst, nameLast, birthYear
+FROM people
+WHERE namefirst LIKE "%mat%"
+```
+
+```{sql, connection = lite_con}
+/* 2.2 Show unique first names with "mat" */
+SELECT DISTINCT nameFirst AS Num
+FROM people
+WHERE namefirst LIKE "%mat%"
+```
+
+### 3. Find all players born in Alaska (AK) or Hawaii (HI) after the year of 1990. Order the result by birth year.
+
+```{sql, connection = lite_con}
+/* 3. Count all players who were born in AK or HI after 1990 */
+/* Order results by birthYear */
+SELECT nameFirst, nameLast, birthYear, birthState, birthCountry
+FROM people
+WHERE birthState in ("AK", "HI") AND birthYear >= 1990
+ORDER BY birthYear
+```
+
+### 4. Players in the database can attend more than one colleges. Find the last college attended by each player.
+
+```{sql, connection = lite_con}
+/* 4. Find the last college attended by each player */
+SELECT people.playerID, nameGiven, yearID, collegeplaying.schoolID, name_full
+FROM people
+LEFT JOIN collegeplaying
+  ON people.playerID = collegeplaying.playerID
+LEFT JOIN schools
+  ON collegeplaying.schoolID = schools.schoolID
+GROUP BY people.playerID
+HAVING yearID == max(YearID)
+```
+
+### 5. Count the number of unique players that attended Rice University.
+
+```{sql, connection = lite_con}
+/* 4. Count the number of unique players that attended Rice University */
+SELECT COUNT(DISTINCT people.playerID)
+FROM people
+LEFT JOIN collegeplaying
+  ON people.playerID = collegeplaying.playerID
+WHERE schoolID = "rice"
+```
+

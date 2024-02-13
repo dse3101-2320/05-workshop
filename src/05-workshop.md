@@ -4,6 +4,8 @@ YH
 2024-02-13
 
 - [Baseball statistics](#baseball-statistics)
+- [Global fishing watch from
+  BigQuery](#global-fishing-watch-from-bigquery)
 
 ## Baseball statistics
 
@@ -146,31 +148,33 @@ WHERE namefirst LIKE "%mat%"
 
 </div>
 
-### 3. Find all players born in Alaska (AK) or Hawaii (HI) after the year of 1990. Order the result by birth year.
+### 3. Find all players born in Alaska (AK) or Hawaii (HI) after the year of 1980. Order the result by birth year.
 
 ``` sql
-/* 3. Count all players who were born in AK or HI after 1990 */
+/* 3. Count all players who were born in AK or HI after 1980 */
 /* Order results by birthYear */
 SELECT nameFirst, nameLast, birthYear, birthState, birthCountry
 FROM people
-WHERE birthState in ("AK", "HI") AND birthYear >= 1990
+WHERE birthState in ("AK", "HI") AND birthYear >= 1980
 ORDER BY birthYear
 ```
 
 <div class="knitsql-table">
 
-| nameFirst | nameLast     | birthYear | birthState | birthCountry |
-|:----------|:-------------|----------:|:-----------|:-------------|
-| Kolten    | Wong         |      1990 | HI         | USA          |
-| Jacob     | Hannemann    |      1991 | HI         | USA          |
-| Tayler    | Saucedo      |      1993 | HI         | USA          |
-| Rico      | Garcia       |      1994 | HI         | USA          |
-| Ka’ai     | Tom          |      1994 | HI         | USA          |
-| Isiah     | Kiner-Falefa |      1995 | HI         | USA          |
-| Kean      | Wong         |      1995 | HI         | USA          |
-| Jordan    | Yamamoto     |      1996 | HI         | USA          |
+| nameFirst | nameLast  | birthYear | birthState | birthCountry |
+|:----------|:----------|----------:|:-----------|:-------------|
+| Chad      | Bentz     |      1980 | AK         | USA          |
+| Shane     | Komine    |      1980 | HI         | USA          |
+| Shane     | Victorino |      1980 | HI         | USA          |
+| Chad      | Santos    |      1981 | HI         | USA          |
+| Jerome    | Williams  |      1981 | HI         | USA          |
+| Tony      | Barnette  |      1983 | AK         | USA          |
+| Scott     | Feldman   |      1983 | HI         | USA          |
+| Bronson   | Sardinha  |      1983 | HI         | USA          |
+| Kurt      | Suzuki    |      1983 | HI         | USA          |
+| Kila      | Ka’aihue  |      1984 | HI         | USA          |
 
-8 records
+Displaying records 1 - 10
 
 </div>
 
@@ -227,3 +231,15 @@ WHERE schoolID = "rice"
 1 records
 
 </div>
+
+- Once we are done using a database, make sure to **disconnect** from
+  the connection.
+
+``` r
+DBI::dbDisconnect(lite_con)
+```
+
+## Global fishing watch from BigQuery
+
+In the second workshop, we will work on data from the Global Fishing
+Watch (GFW) project.

@@ -99,14 +99,14 @@ FROM people
 WHERE namefirst LIKE "%mat%"
 ```
 
-### 3. Find all players born in Alaska (AK) or Hawaii (HI) after the year of 1990. Order the result by birth year.
+### 3. Find all players born in Alaska (AK) or Hawaii (HI) after the year of 1980. Order the result by birth year.
 
 ```{sql, connection = lite_con}
-/* 3. Count all players who were born in AK or HI after 1990 */
+/* 3. Count all players who were born in AK or HI after 1980 */
 /* Order results by birthYear */
 SELECT nameFirst, nameLast, birthYear, birthState, birthCountry
 FROM people
-WHERE birthState in ("AK", "HI") AND birthYear >= 1990
+WHERE birthState in ("AK", "HI") AND birthYear >= 1980
 ORDER BY birthYear
 ```
 
@@ -134,4 +134,57 @@ LEFT JOIN collegeplaying
   ON people.playerID = collegeplaying.playerID
 WHERE schoolID = "rice"
 ```
++ Once we are done using a database, make sure to **disconnect** from the connection.
+
+```{r mysize = TRUE, size = '\\scriptsize'}
+DBI::dbDisconnect(lite_con)
+```
+
+## Global fishing watch from BigQuery
+In the second workshop, we will work on data from the [Global Fishing Watch (GFW) project](https://globalfishingwatch.org/).
+
++ Follow the instructions in the lecture notes and obtain your **project number** from Google Cloud.
+
++ Store it as an **environment variable**, like with your API keys.
+
+```{r}
+# Create connection
+gfw_con = dbConnect(
+  bigrquery::bigquery(),
+  project = "global-fishing-watch",
+  dataset = "global_footprint_of_fisheries",
+  billing = Sys.getenv("PROJECT_ID")
+)
+# List tables in database
+dbListTables(gfw_con)
+
+# Connect to a data set
+fishing_effort <- tbl(gfw_con, "fishing_effort")
+```
+
+### Which countries (identified by `flag`) has the longest fishing hours?
+
+```{sql, connection = gfw_con}
+SELECT flag, SUM(fishing_hours) AS total_fishing_hours
+FROM fishing_effort
+GROUP BY flag
+ORDER BY total_fishing_hours DESC
+```
+
++ After you finish, remember to disconnect from the database.
+
+```{r mysize = TRUE, size = '\\scriptsize'}
+dbDisconnect(gfw_con)
+```
+
+
+
+
+
+
+
+
+
+
+
 

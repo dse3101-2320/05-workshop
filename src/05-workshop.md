@@ -1,7 +1,7 @@
 Workshop 5
 ================
 YH
-2024-02-13
+2024-02-14
 
 - [Baseball statistics](#baseball-statistics)
 
@@ -152,8 +152,8 @@ WHERE namefirst LIKE "%mat%"
 ### 3. Find all players born in Alaska (AK) or Hawaii (HI) after the year of 1980. Order the result by birth year.
 
 ``` sql
-/* 3. Count all players who were born in AK or HI after 1980 */
-/* Order results by birthYear */
+/* 3. Count all players who were born in AK or HI after 1980 
+      Order results by birthYear */
 SELECT nameFirst, nameLast, birthYear, birthState, birthCountry
 FROM people
 WHERE birthState in ("AK", "HI") AND birthYear >= 1980
